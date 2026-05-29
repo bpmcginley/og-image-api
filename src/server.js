@@ -129,6 +129,6 @@ app.get("/api/health", (req, res) => {
 });
 
 app.listen(config.port, () => {
-  console.log(`og-image-api listening on ${config.baseUrl} (port ${config.port})`);
+  console.log(`Unfurl listening on ${config.baseUrl} (port ${config.port})`);
   console.log(`Stripe billing: ${stripeEnabled ? "enabled" : "NOT configured"}`);
 });

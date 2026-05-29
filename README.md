@@ -1,4 +1,4 @@
-# OG Image API
+# Unfurl
 
 A self-hostable micro-SaaS that generates dynamic Open Graph / social-share
 images (1200×630 PNG) from URL parameters. Ships with API-key auth, monthly

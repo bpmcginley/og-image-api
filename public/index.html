@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>OG Image API — dynamic social preview images on demand</title>
+<title>Unfurl — social preview images, one URL away</title>
 <style>
   :root { --bg:#0b1120; --card:#111a2e; --fg:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --line:#1e293b; }
   * { box-sizing: border-box; }
   body { margin:0; font-family: "Segoe UI", system-ui, Arial, sans-serif; background:var(--bg); color:var(--fg); line-height:1.5; }
   header, section { max-width: 980px; margin: 0 auto; padding: 0 20px; }
-  header { padding-top: 64px; text-align:center; }
+  header { padding-top: 56px; text-align:center; }
+  .brand { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 28px; }
+  .brand .accent { color: var(--accent); }
   h1 { font-size: 44px; margin: 0 0 12px; }
   .sub { color: var(--muted); font-size: 19px; max-width: 640px; margin: 0 auto 28px; }
   .accent { color: var(--accent); }
@@ -38,7 +40,8 @@
 </head>
 <body>
 <header>
-  <h1>Dynamic <span class="accent">OG images</span>, one URL away</h1>
+  <div class="brand">un<span class="accent">furl</span></div>
+  <h1>Social preview images, <span class="accent">one URL away</span></h1>
   <p class="sub">Generate beautiful social-share preview images on the fly. Drop a URL in your <code>&lt;meta&gt;</code> tags — no design tools, no build step.</p>
 </header>
 
@@ -121,7 +124,7 @@
   </div>
 </section>
 
-<footer>og-image-api · self-hosted · <span id="stripe_state"></span></footer>
+<footer>Unfurl · <span id="stripe_state"></span></footer>
 
 <script>
 const $ = (id) => document.getElementById(id);

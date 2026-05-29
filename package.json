@@ -1,5 +1,5 @@
 {
-  "name": "og-image-api",
+  "name": "unfurl",
   "version": "1.0.0",
   "private": true,
   "description": "Dynamic Open Graph image generation API with API keys, usage quotas, and Stripe subscriptions.",

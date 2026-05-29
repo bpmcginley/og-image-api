@@ -89,7 +89,7 @@ export function buildSvg(opts) {
     : "";
 
   const watermark = opts.watermark
-    ? `<text x="${WIDTH - 40}" y="${HEIGHT - 40}" text-anchor="end" font-size="22" fill="${theme.muted}" opacity="0.8" font-family="Segoe UI, Arial, Helvetica, sans-serif">made with og-image-api · upgrade to remove</text>`
+    ? `<text x="${WIDTH - 40}" y="${HEIGHT - 40}" text-anchor="end" font-size="22" fill="${theme.muted}" opacity="0.8" font-family="Segoe UI, Arial, Helvetica, sans-serif">made with Unfurl · upgrade to remove</text>`
     : "";
 
   return `<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
