@@ -59,7 +59,9 @@ export function buildSvg(opts) {
   const titleLines = wrapText(title, titleSize, WIDTH - 160, 3);
   const descLines = description ? wrapText(description, 34, WIDTH - 160, 2) : [];
 
-  let y = 230 - (titleLines.length - 1) * (titleSize * 0.6);
+  // Anchor the title baseline to a fixed top and let lines grow downward, so a
+  // multi-line title never climbs up into the eyebrow.
+  let y = eyebrow ? 215 : 180;
 
   const titleTspans = titleLines
     .map((line) => {
