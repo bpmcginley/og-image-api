@@ -125,7 +125,12 @@ app.post("/api/billing/portal", async (req, res) => {
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, themes: themeNames, stripe_enabled: stripeEnabled });
+  res.json({
+    ok: true,
+    themes: themeNames,
+    stripe_enabled: stripeEnabled,
+    commit: (process.env.RENDER_GIT_COMMIT || "local").slice(0, 7),
+  });
 });
 
 app.listen(config.port, () => {
