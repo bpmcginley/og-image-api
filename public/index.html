@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OG Image API — dynamic social preview images on demand</title>
+<style>
+  :root { --bg:#0b1120; --card:#111a2e; --fg:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --line:#1e293b; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", system-ui, Arial, sans-serif; background:var(--bg); color:var(--fg); line-height:1.5; }
+  header, section { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+  header { padding-top: 64px; text-align:center; }
+  h1 { font-size: 44px; margin: 0 0 12px; }
+  .sub { color: var(--muted); font-size: 19px; max-width: 640px; margin: 0 auto 28px; }
+  .accent { color: var(--accent); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin: 22px 0; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  input, select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:#0b1120; color:var(--fg); font-size:14px; }
+  .row { display:flex; gap:14px; flex-wrap:wrap; }
+  .row > div { flex:1; min-width:200px; }
+  button { cursor:pointer; border:none; border-radius:8px; padding:11px 18px; font-size:15px; font-weight:600; background:var(--accent); color:#03263a; }
+  button.secondary { background:#1e293b; color:var(--fg); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  img.preview { width:100%; border-radius:10px; border:1px solid var(--line); margin-top:16px; display:block; }
+  code, pre { background:#0b1120; border:1px solid var(--line); border-radius:8px; font-family: ui-monospace, Consolas, monospace; font-size:13px; }
+  pre { padding:14px; overflow:auto; }
+  code { padding:2px 6px; }
+  .pricing { display:flex; gap:18px; flex-wrap:wrap; }
+  .pricing .card { flex:1; min-width:240px; }
+  .price { font-size:34px; font-weight:800; }
+  .muted { color:var(--muted); }
+  .key { word-break:break-all; font-size:13px; }
+  .hidden { display:none; }
+  .ok { color:#4ade80; } .err { color:#f87171; }
+  ul { padding-left: 18px; } li { margin: 4px 0; }
+  footer { text-align:center; color:var(--muted); padding:50px 20px; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dynamic <span class="accent">OG images</span>, one URL away</h1>
+  <p class="sub">Generate beautiful social-share preview images on the fly. Drop a URL in your <code>&lt;meta&gt;</code> tags — no design tools, no build step.</p>
+</header>
+
+<section>
+  <div class="card">
+    <strong>Live demo</strong> — edit and watch it render.
+    <div class="row">
+      <div><label>Eyebrow</label><input id="d_eyebrow" value="New Release" /></div>
+      <div><label>Theme</label><select id="d_theme">
+        <option value="dark">dark</option><option value="light">light</option>
+        <option value="sunset">sunset</option><option value="forest">forest</option>
+        <option value="grape">grape</option>
+      </select></div>
+    </div>
+    <label>Title</label><input id="d_title" value="Ship OG images without touching Figma" />
+    <label>Description</label><input id="d_description" value="One API call returns a 1200×630 PNG, ready for Twitter, LinkedIn and Slack unfurls." />
+    <label>Footer</label><input id="d_footer" value="yourdomain.com" />
+    <img id="d_preview" class="preview" alt="preview" />
+    <p class="muted" style="font-size:13px;margin-top:10px">Resulting URL pattern (with your key, watermark-free on Pro):</p>
+    <pre id="d_url"></pre>
+  </div>
+</section>
+
+<section id="pricing">
+  <h2 style="text-align:center">Pricing</h2>
+  <div class="pricing">
+    <div class="card">
+      <div class="muted">Free</div>
+      <div class="price">$0</div>
+      <ul>
+        <li id="free_q">200 images / month</li>
+        <li>All themes</li>
+        <li>Watermarked output</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--accent)">
+      <div class="accent">Pro</div>
+      <div class="price">$9<span class="muted" style="font-size:16px">/mo</span></div>
+      <ul>
+        <li id="pro_q">50,000 images / month</li>
+        <li>No watermark</li>
+        <li>Priority rendering</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="card" id="signup">
+    <strong>Get your API key</strong>
+    <label>Email</label>
+    <div class="row">
+      <div><input id="su_email" type="email" placeholder="you@company.com" /></div>
+      <div style="flex:0 0 auto"><button id="su_btn">Create free key</button></div>
+    </div>
+    <p id="su_msg" class="muted" style="font-size:13px"></p>
+  </div>
+
+  <div class="card hidden" id="dashboard">
+    <strong>Your dashboard</strong>
+    <p class="muted" style="font-size:13px;margin-top:6px">API key (store it safely — it won't be shown again on a new device):</p>
+    <code class="key" id="db_key"></code>
+    <div class="row" style="margin-top:16px">
+      <div><label>Plan</label><div id="db_plan">—</div></div>
+      <div><label>Used this month</label><div id="db_usage">—</div></div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <div style="flex:0 0 auto"><button id="db_upgrade">Upgrade to Pro</button></div>
+      <div style="flex:0 0 auto"><button class="secondary" id="db_manage">Manage billing</button></div>
+      <div style="flex:0 0 auto"><button class="secondary" id="db_logout">Use another key</button></div>
+    </div>
+    <p id="db_msg" class="muted" style="font-size:13px"></p>
+  </div>
+</section>
+
+<section>
+  <div class="card">
+    <strong>Use it in your HTML</strong>
+    <pre id="usage_snippet"></pre>
+  </div>
+</section>
+
+<footer>og-image-api · self-hosted · <span id="stripe_state"></span></footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const KEY_STORE = "ogapi_key";
+let debounce;
+
+function previewUrl() {
+  const p = new URLSearchParams({
+    title: $("d_title").value,
+    description: $("d_description").value,
+    eyebrow: $("d_eyebrow").value,
+    footer: $("d_footer").value,
+    theme: $("d_theme").value,
+  });
+  return "/api/preview?" + p.toString();
+}
+function liveUrl() {
+  const p = new URLSearchParams({
+    title: $("d_title").value,
+    description: $("d_description").value,
+    eyebrow: $("d_eyebrow").value,
+    footer: $("d_footer").value,
+    theme: $("d_theme").value,
+    key: "YOUR_API_KEY",
+  });
+  return location.origin + "/api/og?" + p.toString();
+}
+function refreshPreview() {
+  $("d_preview").src = previewUrl();
+  $("d_url").textContent = liveUrl();
+  $("usage_snippet").textContent =
+    '<meta property="og:image"\n      content="' + liveUrl() + '" />';
+}
+["d_title","d_description","d_eyebrow","d_footer","d_theme"].forEach((id) =>
+  $(id).addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(refreshPreview, 300);
+  })
+);
+
+async function loadAccount(key) {
+  const r = await fetch("/api/account?key=" + encodeURIComponent(key));
+  if (!r.ok) { localStorage.removeItem(KEY_STORE); showSignup(); return; }
+  const a = await r.json();
+  $("signup").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+  $("db_key").textContent = key;
+  $("db_plan").textContent = a.plan.toUpperCase();
+  $("db_usage").textContent = a.used_this_month + " / " + a.quota;
+  $("db_upgrade").style.display = a.plan === "pro" ? "none" : "";
+  $("db_manage").style.display = a.plan === "pro" ? "" : "none";
+}
+function showSignup() {
+  $("dashboard").classList.add("hidden");
+  $("signup").classList.remove("hidden");
+}
+
+$("su_btn").onclick = async () => {
+  $("su_msg").textContent = "";
+  const r = await fetch("/api/signup", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: $("su_email").value }),
+  });
+  const data = await r.json();
+  if (!r.ok) { $("su_msg").className = "err"; $("su_msg").textContent = data.error; return; }
+  localStorage.setItem(KEY_STORE, data.api_key);
+  loadAccount(data.api_key);
+};
+
+$("db_upgrade").onclick = async () => {
+  const key = localStorage.getItem(KEY_STORE);
+  const r = await fetch("/api/billing/checkout", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ key }),
+  });
+  const data = await r.json();
+  if (data.url) location.href = data.url;
+  else { $("db_msg").className = "err"; $("db_msg").textContent = data.error || "Billing unavailable."; }
+};
+$("db_manage").onclick = async () => {
+  const key = localStorage.getItem(KEY_STORE);
+  const r = await fetch("/api/billing/portal", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ key }),
+  });
+  const data = await r.json();
+  if (data.url) location.href = data.url;
+  else { $("db_msg").className = "err"; $("db_msg").textContent = data.error || "No subscription."; }
+};
+$("db_logout").onclick = () => { localStorage.removeItem(KEY_STORE); showSignup(); };
+
+(async function init() {
+  refreshPreview();
+  const h = await (await fetch("/api/health")).json();
+  $("stripe_state").textContent = h.stripe_enabled ? "billing live" : "billing not configured";
+  const saved = localStorage.getItem(KEY_STORE);
+  if (saved) loadAccount(saved);
+})();
+</script>
+</body>
+</html>

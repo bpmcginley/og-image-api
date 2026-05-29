@@ -1,0 +1,32 @@
+# Render Blueprint. In the Render dashboard: New > Blueprint, point it at this
+# repo, and it provisions the service below. Fill the Stripe vars in the
+# dashboard (they are marked sync:false so they are NOT committed to git).
+services:
+  - type: web
+    name: og-image-api
+    runtime: node
+    plan: starter # Starter ($7/mo) is required for a persistent disk
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /data/data.db
+      - key: NODE_VERSION
+        value: "22"
+      - key: BASE_URL
+        sync: false # set to your Render URL, e.g. https://og-image-api.onrender.com
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: FREE_MONTHLY_QUOTA
+        value: "200"
+      - key: PRO_MONTHLY_QUOTA
+        value: "50000"
