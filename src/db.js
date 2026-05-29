@@ -52,6 +52,10 @@ export function getAccountByKey(apiKey) {
   return db.prepare("SELECT * FROM accounts WHERE api_key = ?").get(apiKey);
 }
 
+export function getAccountById(id) {
+  return db.prepare("SELECT * FROM accounts WHERE id = ?").get(id);
+}
+
 export function getAccountByCustomerId(customerId) {
   return db
     .prepare("SELECT * FROM accounts WHERE stripe_customer_id = ?")
