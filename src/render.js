@@ -20,6 +20,29 @@ function escapeXml(str = "") {
     .replace(/'/g, "&apos;");
 }
 
+// Only accept #rgb / #rrggbb (optional leading #). Anything else falls back,
+// which prevents query params from injecting markup into SVG attributes.
+function sanitizeColor(input, fallback) {
+  if (typeof input !== "string") return fallback;
+  const v = input.trim();
+  if (/^#?[0-9a-fA-F]{3}$/.test(v) || /^#?[0-9a-fA-F]{6}$/.test(v)) {
+    return v.startsWith("#") ? v : "#" + v;
+  }
+  return fallback;
+}
+
+// Lighten (pct > 0) or darken (pct < 0) a hex color.
+function shade(hex, pct) {
+  const h = hex.replace("#", "");
+  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+  const f = 1 + pct;
+  const channel = (i) =>
+    Math.max(0, Math.min(255, Math.round(parseInt(full.slice(i, i + 2), 16) * f)))
+      .toString(16)
+      .padStart(2, "0");
+  return `#${channel(0)}${channel(2)}${channel(4)}`;
+}
+
 // Greedy word-wrap using an approximate average glyph width.
 function wrapText(text, fontSize, maxWidth, maxLines) {
   const avgCharWidth = fontSize * 0.56;
@@ -48,21 +71,59 @@ function wrapText(text, fontSize, maxWidth, maxLines) {
   return lines;
 }
 
-export function buildSvg(opts) {
-  const theme = THEMES[opts.theme] || THEMES.dark;
+// Build the theme, applying any per-request color overrides.
+function resolveTheme(opts) {
+  const base = THEMES[opts.theme] || THEMES.dark;
+  const theme = { ...base };
+  if (opts.bg) {
+    const bg = sanitizeColor(opts.bg, base.bg1);
+    theme.bg1 = bg;
+    theme.bg2 = shade(bg, -0.28);
+  }
+  theme.accent = sanitizeColor(opts.accent, theme.accent);
+  theme.fg = sanitizeColor(opts.fg, theme.fg);
+  return theme;
+}
+
+export function buildSvg(opts, logoDataUri) {
+  const theme = resolveTheme(opts);
   const title = opts.title || "Your title here";
   const description = opts.description || "";
   const eyebrow = opts.eyebrow || "";
   const footer = opts.footer || "";
+  const hasLogo = Boolean(logoDataUri);
 
   const titleSize = title.length > 60 ? 60 : title.length > 35 ? 72 : 88;
   const titleLines = wrapText(title, titleSize, WIDTH - 160, 3);
   const descLines = description ? wrapText(description, 34, WIDTH - 160, 2) : [];
 
-  // Anchor the title baseline to a fixed top and let lines grow downward, so a
-  // multi-line title never climbs up into the eyebrow.
-  let y = eyebrow ? 215 : 180;
+  // Vertical layout: logo (optional) at the top, then eyebrow, then the title
+  // block grows downward so it never collides with what's above it.
+  let eyebrowY;
+  let titleTop;
+  if (hasLogo && eyebrow) {
+    eyebrowY = 170;
+    titleTop = 240;
+  } else if (hasLogo) {
+    titleTop = 210;
+  } else if (eyebrow) {
+    eyebrowY = 120;
+    titleTop = 215;
+  } else {
+    titleTop = 180;
+  }
 
+  const logoEl = hasLogo
+    ? `<image x="80" y="60" height="56" width="260" preserveAspectRatio="xMinYMid meet" href="${logoDataUri}"/>`
+    : "";
+
+  const eyebrowEl = eyebrow
+    ? `<text x="80" y="${eyebrowY}" font-size="28" font-weight="700" letter-spacing="3" fill="${theme.accent}" font-family="Segoe UI, Arial, Helvetica, sans-serif">${escapeXml(
+        eyebrow.toUpperCase(),
+      )}</text>`
+    : "";
+
+  let y = titleTop;
   const titleTspans = titleLines
     .map((line) => {
       const t = `<text x="80" y="${y}" font-size="${titleSize}" font-weight="800" fill="${theme.fg}" font-family="Segoe UI, Arial, Helvetica, sans-serif">${escapeXml(line)}</text>`;
@@ -79,12 +140,6 @@ export function buildSvg(opts) {
       return t;
     })
     .join("\n");
-
-  const eyebrowEl = eyebrow
-    ? `<text x="80" y="120" font-size="28" font-weight="700" letter-spacing="3" fill="${theme.accent}" font-family="Segoe UI, Arial, Helvetica, sans-serif">${escapeXml(
-        eyebrow.toUpperCase(),
-      )}</text>`
-    : "";
 
   const footerEl = footer
     ? `<text x="80" y="${HEIGHT - 60}" font-size="30" font-weight="600" fill="${theme.muted}" font-family="Segoe UI, Arial, Helvetica, sans-serif">${escapeXml(footer)}</text>`
@@ -103,6 +158,7 @@ export function buildSvg(opts) {
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#bg)"/>
   <rect x="0" y="0" width="14" height="${HEIGHT}" fill="${theme.accent}"/>
+  ${logoEl}
   ${eyebrowEl}
   ${titleTspans}
   ${descTspans}
@@ -111,8 +167,41 @@ export function buildSvg(opts) {
 </svg>`;
 }
 
+// Fetch a remote logo and return it as a base64 data URI for embedding.
+// Guarded against abuse: https/http only, short timeout, image types only,
+// and a hard size cap. Any failure returns null so the render still succeeds.
+async function fetchLogo(url) {
+  if (typeof url !== "string") return null;
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const resp = await fetch(parsed.href, { signal: controller.signal, redirect: "follow" });
+    clearTimeout(timer);
+    if (!resp.ok) return null;
+
+    const type = (resp.headers.get("content-type") || "").split(";")[0].trim();
+    if (!type.startsWith("image/")) return null;
+
+    const buf = Buffer.from(await resp.arrayBuffer());
+    if (buf.length > 2 * 1024 * 1024) return null; // 2 MB cap
+
+    return `data:${type};base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
 export async function renderPng(opts) {
-  const svg = buildSvg(opts);
+  const logoDataUri = opts.logo ? await fetchLogo(opts.logo) : null;
+  const svg = buildSvg(opts, logoDataUri);
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 

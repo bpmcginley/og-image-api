@@ -37,6 +37,10 @@ app.get("/api/og", authAndMeter, async (req, res) => {
       eyebrow: req.query.eyebrow,
       footer: req.query.footer,
       theme: req.query.theme,
+      logo: req.query.logo,
+      bg: req.query.bg,
+      accent: req.query.accent,
+      fg: req.query.fg,
       watermark: req.account.plan !== "pro",
     });
     res.set("Content-Type", "image/png");
@@ -56,6 +60,10 @@ app.get("/api/preview", async (req, res) => {
       eyebrow: req.query.eyebrow,
       footer: req.query.footer,
       theme: req.query.theme,
+      logo: req.query.logo,
+      bg: req.query.bg,
+      accent: req.query.accent,
+      fg: req.query.fg,
       watermark: true,
     });
     res.set("Content-Type", "image/png");

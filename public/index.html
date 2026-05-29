@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Unfurl — social preview images, one URL away</title>
+<title>Unfurl — branded share images for Webflow & Framer, no code</title>
 <style>
   :root { --bg:#0b1120; --card:#111a2e; --fg:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --line:#1e293b; }
   * { box-sizing: border-box; }
@@ -41,8 +41,8 @@
 <body>
 <header>
   <div class="brand">un<span class="accent">furl</span></div>
-  <h1>Social preview images, <span class="accent">one URL away</span></h1>
-  <p class="sub">Generate beautiful social-share preview images on the fly. Drop a URL in your <code>&lt;meta&gt;</code> tags — no design tools, no build step.</p>
+  <h1>Branded share images for your <span class="accent">Webflow &amp; Framer</span> site</h1>
+  <p class="sub">Every page gets its own polished social-share image — pulled live from your CMS fields, with your logo and colors. Paste one line into your site settings. No design tools, no code, no per-page work.</p>
 </header>
 
 <section>
@@ -56,9 +56,17 @@
         <option value="grape">grape</option>
       </select></div>
     </div>
-    <label>Title</label><input id="d_title" value="Ship OG images without touching Figma" />
-    <label>Description</label><input id="d_description" value="One API call returns a 1200×630 PNG, ready for Twitter, LinkedIn and Slack unfurls." />
+    <label>Title</label><input id="d_title" value="Ship branded share images, no design tools" />
+    <label>Description</label><input id="d_description" value="Pulled live from your Webflow or Framer CMS — title, logo and colors, on every page." />
     <label>Footer</label><input id="d_footer" value="yourdomain.com" />
+    <div class="row">
+      <div><label>Logo URL (optional)</label><input id="d_logo" placeholder="https://yoursite.com/logo.png" /></div>
+    </div>
+    <div class="row">
+      <div><label>Background</label><input id="d_bg" placeholder="#0f172a" /></div>
+      <div><label>Accent</label><input id="d_accent" placeholder="#38bdf8" /></div>
+      <div><label>Text</label><input id="d_fg" placeholder="#f8fafc" /></div>
+    </div>
     <img id="d_preview" class="preview" alt="preview" />
     <p class="muted" style="font-size:13px;margin-top:10px">Resulting URL pattern (with your key, watermark-free on Pro):</p>
     <pre id="d_url"></pre>
@@ -73,7 +81,7 @@
       <div class="price">$0</div>
       <ul>
         <li id="free_q">200 images / month</li>
-        <li>All themes</li>
+        <li>Logo + custom colors</li>
         <li>Watermarked output</li>
       </ul>
     </div>
@@ -83,6 +91,7 @@
       <ul>
         <li id="pro_q">50,000 images / month</li>
         <li>No watermark</li>
+        <li>Logo + custom colors</li>
         <li>Priority rendering</li>
       </ul>
     </div>
@@ -118,8 +127,31 @@
 </section>
 
 <section>
+  <h2 style="text-align:center">Set it up in 2 minutes</h2>
+  <p class="sub" style="text-align:center">Pick your platform. Paste one line. Every page gets a branded share image automatically.</p>
+
   <div class="card">
-    <strong>Use it in your HTML</strong>
+    <strong>Webflow</strong>
+    <ol>
+      <li>Open <span class="muted">Page settings → Custom code → Inside &lt;head&gt; tag</span> (or a Collection page template for CMS items).</li>
+      <li>Paste this, swapping in your own logo and colors:</li>
+    </ol>
+    <pre id="wf_snippet"></pre>
+    <p class="muted" style="font-size:13px">On a CMS Collection template, type <code>+ Add Field</code> inside the URL where you want the title, e.g. <code>title={{wf {&quot;path&quot;:&quot;name&quot;} }}</code> — Webflow fills in each item's value at publish.</p>
+  </div>
+
+  <div class="card">
+    <strong>Framer</strong>
+    <ol>
+      <li>Select the page (or a CMS Collection page) → <span class="muted">Settings → Open Graph Image → use a URL</span>.</li>
+      <li>Paste the URL below. For CMS pages, insert a field token where the title goes:</li>
+    </ol>
+    <pre id="fr_snippet"></pre>
+    <p class="muted" style="font-size:13px">Click the <code>+</code> in Framer's URL field to insert a CMS field (like <em>Title</em>) so each entry renders its own image.</p>
+  </div>
+
+  <div class="card">
+    <strong>Anything else (raw HTML, Next.js, etc.)</strong>
     <pre id="usage_snippet"></pre>
   </div>
 </section>
@@ -131,34 +163,41 @@ const $ = (id) => document.getElementById(id);
 const KEY_STORE = "ogapi_key";
 let debounce;
 
+function brandParams() {
+  const p = new URLSearchParams();
+  const add = (k, id) => { const v = $(id).value.trim(); if (v) p.set(k, v); };
+  add("title", "d_title");
+  add("description", "d_description");
+  add("eyebrow", "d_eyebrow");
+  add("footer", "d_footer");
+  add("theme", "d_theme");
+  add("logo", "d_logo");
+  add("bg", "d_bg");
+  add("accent", "d_accent");
+  add("fg", "d_fg");
+  return p;
+}
 function previewUrl() {
-  const p = new URLSearchParams({
-    title: $("d_title").value,
-    description: $("d_description").value,
-    eyebrow: $("d_eyebrow").value,
-    footer: $("d_footer").value,
-    theme: $("d_theme").value,
-  });
-  return "/api/preview?" + p.toString();
+  return "/api/preview?" + brandParams().toString();
 }
 function liveUrl() {
-  const p = new URLSearchParams({
-    title: $("d_title").value,
-    description: $("d_description").value,
-    eyebrow: $("d_eyebrow").value,
-    footer: $("d_footer").value,
-    theme: $("d_theme").value,
-    key: "YOUR_API_KEY",
-  });
+  const p = brandParams();
+  p.set("key", "YOUR_API_KEY");
   return location.origin + "/api/og?" + p.toString();
 }
 function refreshPreview() {
   $("d_preview").src = previewUrl();
-  $("d_url").textContent = liveUrl();
+  const url = liveUrl();
+  $("d_url").textContent = url;
   $("usage_snippet").textContent =
-    '<meta property="og:image"\n      content="' + liveUrl() + '" />';
+    '<meta property="og:image" content="' + url + '" />\n' +
+    '<meta name="twitter:card" content="summary_large_image" />';
+  $("wf_snippet").textContent =
+    '<meta property="og:image" content="' + url + '" />\n' +
+    '<meta name="twitter:card" content="summary_large_image" />';
+  $("fr_snippet").textContent = url;
 }
-["d_title","d_description","d_eyebrow","d_footer","d_theme"].forEach((id) =>
+["d_title","d_description","d_eyebrow","d_footer","d_theme","d_logo","d_bg","d_accent","d_fg"].forEach((id) =>
   $(id).addEventListener("input", () => {
     clearTimeout(debounce);
     debounce = setTimeout(refreshPreview, 300);
