@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- ============ SEO ============ -->
+<title>How to Add Dynamic OG Images to Webflow Without Code (2026 Guide)</title>
+<meta name="description" content="A step-by-step guide to adding dynamic Open Graph (social share) images to every Webflow page and CMS item — no design tools and no code. Includes the meta tags, the Webflow field-binding trick, and a free tool that generates the images for you." />
+<link rel="canonical" href="https://useunfurl.com/blog/how-to-add-og-images-to-webflow.html" />
+<meta name="robots" content="index, follow" />
+
+<!-- ============ Open Graph (this page dogfoods Unfurl) ============ -->
+<!-- Swap /api/preview for /api/og?key=YOUR_KEY to drop the watermark on this card. -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="How to Add Dynamic OG Images to Webflow Without Code" />
+<meta property="og:description" content="Step-by-step: give every Webflow page and CMS item its own branded social-share image. No design tools, no code." />
+<meta property="og:url" content="https://useunfurl.com/blog/how-to-add-og-images-to-webflow.html" />
+<meta property="og:image" content="https://useunfurl.com/api/preview?title=How%20to%20Add%20Dynamic%20OG%20Images%20to%20Webflow%20Without%20Code&eyebrow=Guide&footer=useunfurl.com&theme=dark" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- ============ Structured data: Article ============ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Add Dynamic OG Images to Webflow Without Code (2026 Guide)",
+  "description": "A step-by-step guide to adding dynamic Open Graph (social share) images to every Webflow page and CMS item without design tools or code.",
+  "author": { "@type": "Organization", "name": "Unfurl" },
+  "publisher": { "@type": "Organization", "name": "Unfurl" },
+  "datePublished": "2026-05-29",
+  "mainEntityOfPage": "https://useunfurl.com/blog/how-to-add-og-images-to-webflow.html"
+}
+</script>
+
+<!-- ============ Structured data: FAQ (eligible for rich results) ============ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can Webflow generate Open Graph images automatically?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Webflow lets you bind an Open Graph image field to a CMS image you upload, but it cannot generate or design the image for you. You either upload a unique image to every item by hand, or point the OG image tag at a service that renders one on the fly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What size should a Webflow OG image be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "1200 by 630 pixels is the standard Open Graph image size. It displays cleanly on Facebook, LinkedIn, Slack, iMessage and X (Twitter) when paired with the summary_large_image card type."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to write code to add dynamic OG images in Webflow?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. You paste two meta tags into the page's Custom Code head section. On a CMS Collection template you replace the static text with Webflow field tokens so each item fills in its own title, and the image URL renders a unique image per page at publish time."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root { --bg:#0b1120; --card:#111a2e; --fg:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --line:#1e293b; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", system-ui, Arial, sans-serif; background:var(--bg); color:var(--fg); line-height:1.65; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  .topbar { padding: 22px 0; border-bottom:1px solid var(--line); }
+  .brand { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; text-decoration:none; color:var(--fg); }
+  .brand .accent { color: var(--accent); }
+  .eyebrow { color: var(--accent); font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-top:40px; }
+  h1 { font-size: 38px; line-height:1.2; margin: 8px 0 14px; }
+  h2 { font-size: 26px; margin: 42px 0 10px; }
+  h3 { font-size: 19px; margin: 28px 0 6px; }
+  p, li { font-size: 17px; color: #dbe4f0; }
+  .lead { font-size: 20px; color: var(--muted); }
+  .accent { color: var(--accent); }
+  a { color: var(--accent); }
+  code, pre { background:#0b1120; border:1px solid var(--line); border-radius:8px; font-family: ui-monospace, Consolas, monospace; font-size:14px; }
+  pre { padding:16px; overflow:auto; line-height:1.5; }
+  code { padding:2px 6px; font-size:14px; }
+  pre code { border:none; padding:0; }
+  ol, ul { padding-left: 22px; } li { margin: 6px 0; }
+  .callout { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; padding:18px 20px; margin:26px 0; }
+  .cta { display:inline-block; background:var(--accent); color:#03263a; font-weight:700; text-decoration:none; padding:13px 22px; border-radius:9px; margin-top:8px; }
+  .cta-card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px; margin:40px 0; text-align:center; }
+  img.demo { width:100%; border-radius:10px; border:1px solid var(--line); margin:16px 0; display:block; }
+  table { width:100%; border-collapse:collapse; margin:18px 0; font-size:15px; }
+  th, td { border:1px solid var(--line); padding:10px 12px; text-align:left; }
+  th { background:var(--card); }
+  footer { text-align:center; color:var(--muted); padding:50px 20px; font-size:13px; border-top:1px solid var(--line); margin-top:50px; }
+  footer a { color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap"><a class="brand" href="/">un<span class="accent">furl</span></a></div>
+</div>
+
+<article class="wrap">
+
+  <div class="eyebrow">Webflow Guide</div>
+  <h1>How to Add Dynamic OG Images to Webflow Without Code</h1>
+  <p class="lead">Give every page and CMS item its own branded social-share image — pulled from your content, with your logo and colors. No design tools, no developer, about ten minutes of setup.</p>
+
+  <p>When someone pastes a link to your Webflow site into LinkedIn, Slack, iMessage, Facebook, or X, the preview card they see is controlled by your page's <strong>Open Graph image</strong> (often shortened to "OG image"). A good one makes your link look trustworthy and clickable. A missing or generic one makes it look broken — and quietly costs you clicks.</p>
+
+  <p>The catch: Webflow can <em>reference</em> an OG image, but it can't <em>make</em> one. This guide walks through the three things people actually mean when they ask about this, and shows you the no-code way to get a unique, on-brand image on <strong>every</strong> page automatically.</p>
+
+  <h2>First, what Webflow can and can't do</h2>
+  <p>Let's be precise, because most articles get this wrong:</p>
+  <ul>
+    <li><strong>Webflow CAN</strong> set an Open Graph image per page, and on a CMS Collection it can bind the OG image to an image field — so each blog post or product can have a different share image.</li>
+    <li><strong>Webflow CANNOT</strong> generate or design that image. You have to supply the actual picture. On a 50-post blog, that's 50 images you create and upload by hand, every time you publish.</li>
+  </ul>
+  <p>So "dynamic OG images" really comes down to one question: <strong>where do the images come from?</strong> You have two options — make each one manually, or point Webflow at a service that renders a fresh image from your page's title and brand on the fly. This guide covers the automatic route.</p>
+
+  <h2>What an OG image needs to be</h2>
+  <table>
+    <tr><th>Spec</th><th>Value</th></tr>
+    <tr><td>Dimensions</td><td>1200 × 630 pixels</td></tr>
+    <tr><td>Format</td><td>PNG or JPG</td></tr>
+    <tr><td>Card type</td><td><code>summary_large_image</code> (for X/Twitter)</td></tr>
+    <tr><td>The two tags you need</td><td><code>og:image</code> + <code>twitter:card</code></td></tr>
+  </table>
+
+  <h2>The two meta tags that control your share card</h2>
+  <p>Every social platform reads the same two tags from the <code>&lt;head&gt;</code> of your page:</p>
+<pre><code>&lt;meta property="og:image" content="https://YOUR-IMAGE-URL" /&gt;
+&lt;meta name="twitter:card" content="summary_large_image" /&gt;</code></pre>
+  <p>That's the whole mechanism. Whatever URL you put in <code>og:image</code> is the picture people see. If that URL <em>generates</em> an image based on the page, you get a unique card per page without uploading anything. That's the trick.</p>
+
+  <h2>Step-by-step: dynamic OG images on a Webflow CMS Collection</h2>
+  <p>This is the high-value case — a blog, a directory, a product catalog — where you want each item to have its own card automatically.</p>
+
+  <h3>1. Open the Collection page template's custom code</h3>
+  <p>In the Webflow Designer, open your Collection page template (e.g. the Blog Post template). Go to <strong>Page settings → Custom code → Inside &lt;head&gt; tag</strong>.</p>
+
+  <h3>2. Paste the two tags, with a generator URL</h3>
+  <p>Instead of a fixed image, point <code>og:image</code> at a rendering service and pass the page's own fields into the URL:</p>
+<pre><code>&lt;meta property="og:image"
+  content="https://useunfurl.com/api/og?key=YOUR_KEY&amp;title=YOUR_TITLE&amp;footer=yourdomain.com&amp;theme=dark" /&gt;
+&lt;meta name="twitter:card" content="summary_large_image" /&gt;</code></pre>
+
+  <h3>3. Replace the static title with a Webflow field token</h3>
+  <p>Here's the no-code magic. In Webflow's custom code, click where the title goes and use <strong>+ Add Field</strong> to insert the item's Name. Webflow swaps in each item's real value when it publishes:</p>
+<pre><code>title={{wf {"path":"name","type":"PlainText"} }}</code></pre>
+  <p>Now every blog post renders its <em>own</em> image — its title, your logo, your colors — and you never touch a design tool. Publish once; it works for all 50 posts and every future one.</p>
+
+  <div class="callout">
+    <strong>Important:</strong> Webflow needs the values in the URL to be URL-encoded. Spaces become <code>%20</code>, etc. A good generator handles encoding on its end, but if your titles contain <code>&amp;</code> or <code>#</code>, encode those (<code>%26</code>, <code>%23</code>) so the URL doesn't break.
+  </div>
+
+  <h2>Step-by-step: a single static page</h2>
+  <p>For a one-off page (homepage, about, a landing page), it's even simpler. Open <strong>Page settings → Custom code → Inside &lt;head&gt; tag</strong> on that page and paste the same two tags with the title written out:</p>
+<pre><code>&lt;meta property="og:image"
+  content="https://useunfurl.com/api/og?key=YOUR_KEY&amp;title=Your%20Page%20Title&amp;footer=yourdomain.com&amp;theme=dark" /&gt;
+&lt;meta name="twitter:card" content="summary_large_image" /&gt;</code></pre>
+
+  <h2>Test it before you trust it</h2>
+  <p>After publishing, confirm the card renders correctly. Don't guess — every platform caches aggressively, so use their official debuggers:</p>
+  <ul>
+    <li><strong>Facebook / general OG:</strong> the Meta Sharing Debugger — paste your URL, hit "Scrape Again" to clear the cache.</li>
+    <li><strong>LinkedIn:</strong> the LinkedIn Post Inspector.</li>
+    <li><strong>X (Twitter):</strong> just paste the link into a draft post and watch the card load.</li>
+  </ul>
+  <p>If the old image is stuck, it's almost always a platform cache, not your tags — re-scrape and it updates.</p>
+
+  <h2>The shortcut: let the image generate itself</h2>
+  <p>Everything above works with any image URL. The reason it becomes <em>no-code and zero-maintenance</em> is the generator URL doing the drawing. That's exactly what we built <a href="/">Unfurl</a> for: you paste one line into Webflow, pass your title and brand, and it returns a clean 1200×630 PNG — with your logo and colors — for every page, live from your CMS.</p>
+
+  <div class="cta-card">
+    <h3 style="margin-top:0">Try it free on your own Webflow site</h3>
+    <p class="muted" style="color:var(--muted)">200 images/month free, no credit card. Five built-in themes (dark, light, sunset, forest, grape) plus your own logo and hex colors.</p>
+    <a class="cta" href="/">Get your free API key →</a>
+  </div>
+
+  <h2>Frequently asked questions</h2>
+
+  <h3>Can Webflow generate OG images automatically?</h3>
+  <p>No. Webflow can bind the OG image tag to a CMS image field you upload, but it does not create or design the image. To get a unique image per page without manual work, you point the <code>og:image</code> tag at a service that renders one — which is the method in this guide.</p>
+
+  <h3>What size should a Webflow OG image be?</h3>
+  <p>1200 × 630 pixels. That ratio displays cleanly across Facebook, LinkedIn, Slack, iMessage, and X when you also set <code>twitter:card</code> to <code>summary_large_image</code>.</p>
+
+  <h3>Do I need a developer for this?</h3>
+  <p>No. It's two meta tags pasted into Webflow's built-in Custom Code box, plus Webflow's own field-token picker for CMS pages. No plugins, no build step, no JavaScript.</p>
+
+  <h3>Will this slow down my site?</h3>
+  <p>No. The OG image is only fetched by social platforms when your link is shared — it never loads for your normal visitors, so it has zero effect on page speed.</p>
+
+</article>
+
+<footer>
+  <a href="/">Unfurl</a> — branded share images for Webflow &amp; Framer, no code.
+</footer>
+
+</body>
+</html>
