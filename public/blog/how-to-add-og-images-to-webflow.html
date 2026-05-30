@@ -7,7 +7,7 @@
 <!-- ============ SEO ============ -->
 <title>How to Add Dynamic OG Images to Webflow Without Code (2026 Guide)</title>
 <meta name="description" content="A step-by-step guide to adding dynamic Open Graph (social share) images to every Webflow page and CMS item — no design tools and no code. Includes the meta tags, the Webflow field-binding trick, and a free tool that generates the images for you." />
-<link rel="canonical" href="https://useunfurl.com/blog/how-to-add-og-images-to-webflow.html" />
+<link rel="canonical" href="https://www.useunfurl.com/blog/how-to-add-og-images-to-webflow.html" />
 <meta name="robots" content="index, follow" />
 
 <!-- ============ Open Graph (this page dogfoods Unfurl) ============ -->
@@ -15,8 +15,8 @@
 <meta property="og:type" content="article" />
 <meta property="og:title" content="How to Add Dynamic OG Images to Webflow Without Code" />
 <meta property="og:description" content="Step-by-step: give every Webflow page and CMS item its own branded social-share image. No design tools, no code." />
-<meta property="og:url" content="https://useunfurl.com/blog/how-to-add-og-images-to-webflow.html" />
-<meta property="og:image" content="https://useunfurl.com/api/preview?title=How%20to%20Add%20Dynamic%20OG%20Images%20to%20Webflow%20Without%20Code&eyebrow=Guide&footer=useunfurl.com&theme=dark" />
+<meta property="og:url" content="https://www.useunfurl.com/blog/how-to-add-og-images-to-webflow.html" />
+<meta property="og:image" content="https://www.useunfurl.com/api/preview?title=How%20to%20Add%20Dynamic%20OG%20Images%20to%20Webflow%20Without%20Code&eyebrow=Guide&footer=useunfurl.com&theme=dark" />
 <meta name="twitter:card" content="summary_large_image" />
 
 <!-- ============ Structured data: Article ============ -->
@@ -29,7 +29,7 @@
   "author": { "@type": "Organization", "name": "Unfurl" },
   "publisher": { "@type": "Organization", "name": "Unfurl" },
   "datePublished": "2026-05-29",
-  "mainEntityOfPage": "https://useunfurl.com/blog/how-to-add-og-images-to-webflow.html"
+  "mainEntityOfPage": "https://www.useunfurl.com/blog/how-to-add-og-images-to-webflow.html"
 }
 </script>
 
@@ -147,7 +147,7 @@
   <h3>2. Paste the two tags, with a generator URL</h3>
   <p>Instead of a fixed image, point <code>og:image</code> at a rendering service and pass the page's own fields into the URL:</p>
 <pre><code>&lt;meta property="og:image"
-  content="https://useunfurl.com/api/og?key=YOUR_KEY&amp;title=YOUR_TITLE&amp;footer=yourdomain.com&amp;theme=dark" /&gt;
+  content="https://www.useunfurl.com/api/og?key=YOUR_KEY&amp;title=YOUR_TITLE&amp;footer=yourdomain.com&amp;theme=dark" /&gt;
 &lt;meta name="twitter:card" content="summary_large_image" /&gt;</code></pre>
 
   <h3>3. Replace the static title with a Webflow field token</h3>
@@ -162,7 +162,7 @@
   <h2>Step-by-step: a single static page</h2>
   <p>For a one-off page (homepage, about, a landing page), it's even simpler. Open <strong>Page settings → Custom code → Inside &lt;head&gt; tag</strong> on that page and paste the same two tags with the title written out:</p>
 <pre><code>&lt;meta property="og:image"
-  content="https://useunfurl.com/api/og?key=YOUR_KEY&amp;title=Your%20Page%20Title&amp;footer=yourdomain.com&amp;theme=dark" /&gt;
+  content="https://www.useunfurl.com/api/og?key=YOUR_KEY&amp;title=Your%20Page%20Title&amp;footer=yourdomain.com&amp;theme=dark" /&gt;
 &lt;meta name="twitter:card" content="summary_large_image" /&gt;</code></pre>
 
   <h2>Test it before you trust it</h2>
